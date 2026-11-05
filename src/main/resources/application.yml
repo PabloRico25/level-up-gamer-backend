@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: level-up-gamer-backend-berna
+  # Lee las claves desde un archivo .env local (ignorado por Git). Si no existe, usa las variables de entorno.
+  config:
+    import: optional:file:.env[.properties]
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/levelup?serverTimezone=America/Santiago}
+    username: ${DB_USER:levelup_user}
+    password: ${DB_PASSWORD}
+  jpa:
+    open-in-view: false
+    hibernate:
+      # Temporal: la tabla usuario todavía no tiene migración (la escribe Berna en V2).
+      # Cuando V2 entre a main, esto vuelve a "validate".
+      ddl-auto: none
+  flyway:
+    enabled: true
+    # Tres personas agregan migraciones al mismo tiempo (V1 Alex, V2 Berna, V3 Gabo).
+    out-of-order: true
+
+server:
+  port: 8080
+
+app:
+  cors:
+    # Orígenes del frontend, separados por coma.
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
