@@ -15,9 +15,9 @@ class CalculadoraCompraTest {
     @Test
     void calcularSubtotalItemCorrectamente() {
 
-        int resultado = calculadora.calcularSubtotalItem(25000, 2);
+        long resultado = calculadora.calcularSubtotalItem(25000L, 2);
 
-        assertEquals(50000, resultado);
+        assertEquals(50000L, resultado);
     }
 
     @Test
@@ -25,26 +25,26 @@ class CalculadoraCompraTest {
 
         assertThrows(
                 ResponseStatusException.class,
-                () -> calculadora.calcularSubtotalItem(25000, -1)
+                () -> calculadora.calcularSubtotalItem(25000L, -1)
         );
     }
 
     @Test
     void calcularSubtotalCompraCorrectamente() {
 
-        int resultado = calculadora.calcularSubtotalCompra(
-                List.of(50000, 15000)
+        long resultado = calculadora.calcularSubtotalCompra(
+                List.of(50000L, 15000L)
         );
 
-        assertEquals(65000, resultado);
+        assertEquals(65000L, resultado);
     }
 
     @Test
     void calcularTotalConDescuento() {
 
-        int resultado = calculadora.calcularTotal(65000, 5000);
+        long resultado = calculadora.calcularTotal(65000L, 5000L);
 
-        assertEquals(60000, resultado);
+        assertEquals(60000L, resultado);
     }
 
     @Test
@@ -52,7 +52,7 @@ class CalculadoraCompraTest {
 
         assertThrows(
                 ResponseStatusException.class,
-                () -> calculadora.calcularTotal(10000, 15000)
+                () -> calculadora.calcularTotal(10000L, 15000L)
         );
     }
 }

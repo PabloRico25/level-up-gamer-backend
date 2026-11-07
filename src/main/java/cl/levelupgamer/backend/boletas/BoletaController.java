@@ -1,7 +1,13 @@
+
 package cl.levelupgamer.backend.boletas;
 
 import cl.levelupgamer.backend.boletas.dto.BoletaResponse;
+import cl.levelupgamer.backend.boletas.dto.CrearBoletaRequest;
+import cl.levelupgamer.backend.usuarios.Usuario;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -16,41 +22,75 @@ import java.util.List;
 public class BoletaController {
 
     private final BoletaService boletaService;
+    private final RegistrarCompraService registrarCompraService;
+    private final CompradorRepository compradorRepository;
 
-    // GET: Listar todas las boletas
+    // Registrar una compra
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public BoletaResponse crearCompra(
+            @Valid @RequestBody CrearBoletaRequest solicitud,
+            Authentication authentication) {
+
+        verificarAutenticacion(authentication);
+
+        boolean puedeComprar = authentication.getAuthorities().stream()
+                .anyMatch(rol ->
+                        rol.getAuthority().equals("ROLE_CLIENTE")
+                                || rol.getAuthority().equals("ROLE_ADMINISTRADOR")
+                );
+
+        if (!puedeComprar) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "No tienes permisos para comprar"
+            );
+        }
+
+        // Por ahora asumimos que la sesión identifica al usuario
+        // mediante su correo. Se confirmará con Berna.
+        String correo = authentication.getName();
+
+        Usuario usuario = compradorRepository
+                .findByCorreoIgnoreCase(correo)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.UNAUTHORIZED,
+                        "No se encontró el usuario autenticado"
+                ));
+
+        return registrarCompraService.registrar(solicitud, usuario);
+    }
+
+    // Listar todas las boletas
     @GetMapping
     public List<BoletaResponse> listarTodas(
             Authentication authentication) {
 
-        verificarPermisos(authentication);
-
+        verificarPermisosConsulta(authentication);
         return boletaService.listarTodas();
     }
 
-    // GET: Buscar una boleta por ID
+    // Buscar una boleta por su ID
     @GetMapping("/{id}")
     public BoletaResponse buscarPorId(
             @PathVariable Long id,
             Authentication authentication) {
 
-        verificarPermisos(authentication);
-
+        verificarPermisosConsulta(authentication);
         return boletaService.buscarPorId(id);
     }
 
-    // GET: Listar boletas de un usuario
+    // Buscar las boletas de un usuario
     @GetMapping("/usuario/{usuarioId}")
     public List<BoletaResponse> listarPorUsuario(
             @PathVariable Long usuarioId,
             Authentication authentication) {
 
-        verificarPermisos(authentication);
-
+        verificarPermisosConsulta(authentication);
         return boletaService.listarPorUsuario(usuarioId);
     }
 
-    // Verificar que sea administrador o vendedor
-    private void verificarPermisos(Authentication authentication) {
+    private void verificarAutenticacion(Authentication authentication) {
 
         if (authentication == null
                 || !authentication.isAuthenticated()
@@ -61,6 +101,11 @@ public class BoletaController {
                     "Debes iniciar sesión"
             );
         }
+    }
+
+    private void verificarPermisosConsulta(Authentication authentication) {
+
+        verificarAutenticacion(authentication);
 
         boolean autorizado = authentication.getAuthorities().stream()
                 .anyMatch(rol ->
@@ -69,7 +114,6 @@ public class BoletaController {
                 );
 
         if (!autorizado) {
-
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN,
                     "No tienes permisos para consultar boletas"

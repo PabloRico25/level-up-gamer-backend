@@ -17,7 +17,6 @@ public class BoletaService {
     private final BoletaRepository boletaRepository;
     private final DetalleBoletaRepository detalleBoletaRepository;
 
-    // Consultar todas las boletas
     @Transactional(readOnly = true)
     public List<BoletaResponse> listarTodas() {
 
@@ -27,7 +26,6 @@ public class BoletaService {
                 .toList();
     }
 
-    // Consultar una boleta por su ID
     @Transactional(readOnly = true)
     public BoletaResponse buscarPorId(Long id) {
 
@@ -40,7 +38,6 @@ public class BoletaService {
         return convertirAResponse(boleta);
     }
 
-    // Consultar boletas de un usuario
     @Transactional(readOnly = true)
     public List<BoletaResponse> listarPorUsuario(Long usuarioId) {
 
@@ -50,7 +47,6 @@ public class BoletaService {
                 .toList();
     }
 
-    // Convertir los datos de MySQL a una respuesta para React
     private BoletaResponse convertirAResponse(Boleta boleta) {
 
         List<DetalleBoletaResponse> items =

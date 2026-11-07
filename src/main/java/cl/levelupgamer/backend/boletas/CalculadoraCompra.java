@@ -9,8 +9,7 @@ import java.util.List;
 @Component
 public class CalculadoraCompra {
 
-    // Calcula el precio de un producto según su cantidad
-    public int calcularSubtotalItem(int precioUnitario, int cantidad) {
+    public long calcularSubtotalItem(long precioUnitario, int cantidad) {
 
         if (precioUnitario < 0 || cantidad < 1) {
             throw new ResponseStatusException(
@@ -19,20 +18,17 @@ public class CalculadoraCompra {
             );
         }
 
-        long subtotal = (long) precioUnitario * cantidad;
-
-        if (subtotal > Integer.MAX_VALUE) {
+        try {
+            return Math.multiplyExact(precioUnitario, (long) cantidad);
+        } catch (ArithmeticException e) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "El subtotal supera el máximo permitido"
             );
         }
-
-        return (int) subtotal;
     }
 
-    // Suma los subtotales de todos los productos
-    public int calcularSubtotalCompra(List<Integer> subtotales) {
+    public long calcularSubtotalCompra(List<Long> subtotales) {
 
         if (subtotales == null || subtotales.isEmpty()
                 || subtotales.stream().anyMatch(s -> s == null || s < 0)) {
@@ -42,24 +38,23 @@ public class CalculadoraCompra {
             );
         }
 
-        long subtotal = 0;
+        long total = 0L;
 
-        for (Integer valor : subtotales) {
-            subtotal += valor;
-        }
-
-        if (subtotal > Integer.MAX_VALUE) {
+        try {
+            for (Long subtotal : subtotales) {
+                total = Math.addExact(total, subtotal);
+            }
+        } catch (ArithmeticException e) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "La compra supera el máximo permitido"
             );
         }
 
-        return (int) subtotal;
+        return total;
     }
 
-    // Calcula el total después de aplicar un descuento
-    public int calcularTotal(int subtotal, int descuento) {
+    public long calcularTotal(long subtotal, long descuento) {
 
         if (subtotal < 0 || descuento < 0 || descuento > subtotal) {
             throw new ResponseStatusException(

@@ -9,7 +9,6 @@ public class DetalleBoletaResponse {
 
     private String productoId;
     private Integer cantidad;
-    private Integer precioUnitario;
-    private Integer subtotal;
-
+    private Long precioUnitario;
+    private Long subtotal;
 }

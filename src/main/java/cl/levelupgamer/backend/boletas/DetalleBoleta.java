@@ -27,8 +27,8 @@ public class DetalleBoleta {
     private Integer cantidad;
 
     @Column(name = "precio_unitario", nullable = false)
-    private Integer precioUnitario;
+    private Long precioUnitario;
 
     @Column(nullable = false)
-    private Integer subtotal;
+    private Long subtotal;
 }

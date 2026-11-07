@@ -27,11 +27,11 @@ public class Boleta {
     private LocalDateTime fechaEmision = LocalDateTime.now();
 
     @Column(nullable = false)
-    private Integer subtotal = 0;
+    private Long subtotal = 0L;
 
     @Column(nullable = false)
-    private Integer descuento = 0;
+    private Long descuento = 0L;
 
     @Column(nullable = false)
-    private Integer total = 0;
+    private Long total = 0L;
 }
