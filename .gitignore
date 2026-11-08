@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Local (nunca se sube) ###
+.env
+application-local.yml
+application-local.properties
