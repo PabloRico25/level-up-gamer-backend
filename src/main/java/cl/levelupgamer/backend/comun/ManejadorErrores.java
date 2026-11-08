@@ -81,7 +81,7 @@ public class ManejadorErrores extends ResponseEntityExceptionHandler {
             case UNSUPPORTED_MEDIA_TYPE -> "Tipo de contenido no soportado";
             default -> status.getReasonPhrase();
         };
-        return responder(status, mensaje, rutaDe(request), null);
+        return responder(status, headers, mensaje, rutaDe(request), null);
     }
 
     private static String rutaDe(WebRequest request) {
@@ -90,8 +90,18 @@ public class ManejadorErrores extends ResponseEntityExceptionHandler {
 
     private static ResponseEntity<Object> responder(HttpStatus status, String mensaje, String ruta,
                                                     List<ErrorCampo> errores) {
+        return responder(status, null, mensaje, ruta, errores);
+    }
+
+    /** Con "headers" se conservan las cabeceras que Spring ya preparó (Allow en un 405, Accept en un 415). */
+    private static ResponseEntity<Object> responder(HttpStatus status, HttpHeaders headers, String mensaje,
+                                                    String ruta, List<ErrorCampo> errores) {
         ErrorRespuesta cuerpo = new ErrorRespuesta(LocalDateTime.now(), status.value(), status.getReasonPhrase(),
                 mensaje, ruta, errores);
-        return ResponseEntity.status(status).body(cuerpo);
+        ResponseEntity.BodyBuilder respuesta = ResponseEntity.status(status);
+        if (headers != null) {
+            respuesta.headers(headers);
+        }
+        return respuesta.body(cuerpo);
     }
 }
