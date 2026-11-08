@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -124,6 +125,19 @@ class ManejadorErroresTests {
         respuesta.andExpect(status().isMethodNotAllowed())
                 .andExpect(jsonPath("$.status").value(405))
                 .andExpect(jsonPath("$.path").value("/api/v1/prueba/no-encontrado"));
+    }
+
+    @Test
+    @DisplayName("Un metodo no permitido conserva la cabecera Allow de Spring")
+    void metodoNoPermitidoConservaLaCabeceraAllow() throws Exception {
+        // Given: una ruta que solo acepta GET
+
+        // When
+        ResultActions respuesta = mockMvc.perform(post("/api/v1/prueba/no-encontrado"));
+
+        // Then
+        respuesta.andExpect(status().isMethodNotAllowed())
+                .andExpect(header().exists("Allow"));
     }
 
     /** Controlador solo para esta prueba: cada ruta lanza una excepción distinta. */
