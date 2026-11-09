@@ -1,33 +1,65 @@
 
 package cl.levelupgamer.backend.config;
 
+import cl.levelupgamer.backend.usuarios.Usuario;
+import cl.levelupgamer.backend.usuarios.UsuarioRepository;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+
+import java.util.List;
 
 @Configuration
 public class SecurityConfig {
 
+    // Obtener los permisos actuales desde MySQL
     @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
-
-        JwtGrantedAuthoritiesConverter roles =
-                new JwtGrantedAuthoritiesConverter();
-
-        roles.setAuthoritiesClaimName("tipo");
-        roles.setAuthorityPrefix("ROLE_");
+    public JwtAuthenticationConverter jwtAuthenticationConverter(
+            UsuarioRepository usuarioRepository
+    ) {
 
         JwtAuthenticationConverter converter =
                 new JwtAuthenticationConverter();
 
-        converter.setJwtGrantedAuthoritiesConverter(roles);
+        converter.setJwtGrantedAuthoritiesConverter(jwt -> {
+
+            // Buscar al usuario que pertenece al JWT
+            Usuario usuario = usuarioRepository
+                    .findByCorreo(jwt.getSubject())
+                    .orElseThrow(() -> new BadCredentialsException(
+                            "Usuario no encontrado"
+                    ));
+
+            // Comprobar que el ID coincida
+            Object idToken = jwt.getClaims().get("usuarioId");
+
+            if (idToken == null ||
+                    !usuario.getId().toString().equals(idToken.toString())) {
+
+                throw new BadCredentialsException(
+                        "Token no corresponde al usuario"
+                );
+            }
+
+            // Obtener el rol ACTUAL desde MySQL
+            String rolActual = usuario.getTipo().name();
+
+            return List.<GrantedAuthority>of(
+                    new SimpleGrantedAuthority("ROLE_" + rolActual)
+            );
+        });
 
         return converter;
     }
@@ -54,7 +86,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
-                        // Autenticación pública
+                        // Registro y autenticación
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/api/v1/auth/registro",
@@ -63,7 +95,7 @@ public class SecurityConfig {
                                 "/api/v1/auth/logout"
                         ).permitAll()
 
-                        // Catálogo público
+                        // Productos públicos
                         .requestMatchers(
                                 HttpMethod.GET,
                                 "/api/v1/productos",
@@ -72,7 +104,7 @@ public class SecurityConfig {
                                 "/api/v1/categorias/**"
                         ).permitAll()
 
-                        // Swagger
+                        // Documentación Swagger
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
@@ -85,7 +117,7 @@ public class SecurityConfig {
                                 "/api/v1/usuarios/**"
                         ).hasRole("ADMINISTRADOR")
 
-                        // Modificaciones de productos
+                        // Modificación de productos
                         .requestMatchers(
                                 "/api/v1/productos",
                                 "/api/v1/productos/**",
@@ -93,7 +125,7 @@ public class SecurityConfig {
                                 "/api/v1/categorias/**"
                         ).hasRole("ADMINISTRADOR")
 
-                        // Consultar órdenes
+                        // Consulta de boletas
                         .requestMatchers(
                                 HttpMethod.GET,
                                 "/api/v1/boletas",
@@ -103,7 +135,7 @@ public class SecurityConfig {
                                 "VENDEDOR"
                         )
 
-                        // Registrar una compra
+                        // Registrar compras
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/api/v1/boletas"

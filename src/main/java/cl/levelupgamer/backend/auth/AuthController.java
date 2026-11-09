@@ -63,6 +63,7 @@ public class AuthController {
                             datos.getContrasena()
                     )
             );
+
         } catch (AuthenticationException e) {
             throw new ResponseStatusException(
                     HttpStatus.UNAUTHORIZED,
@@ -121,11 +122,17 @@ public class AuthController {
         );
     }
 
-    // Renovar JWT
+    // Renovar el JWT
     @PostMapping("/refresh")
     public ResponseEntity<Map<String, String>> renovar(
             @RequestHeader(value = "Origin", required = false)
             String origin,
+
+            @RequestHeader(
+                    value = "X-Requested-With",
+                    required = false
+            )
+            String solicitadoCon,
 
             @CookieValue(
                     name = COOKIE_NOMBRE,
@@ -133,7 +140,7 @@ public class AuthController {
             )
             String refreshToken) {
 
-        validarOrigen(origin);
+        validarSolicitud(origin, solicitadoCon);
 
         TokenRenovacionService.TokensRenovados tokens =
                 tokenRenovacionService.renovar(refreshToken);
@@ -155,13 +162,19 @@ public class AuthController {
             @RequestHeader(value = "Origin", required = false)
             String origin,
 
+            @RequestHeader(
+                    value = "X-Requested-With",
+                    required = false
+            )
+            String solicitadoCon,
+
             @CookieValue(
                     name = COOKIE_NOMBRE,
                     required = false
             )
             String refreshToken) {
 
-        validarOrigen(origin);
+        validarSolicitud(origin, solicitadoCon);
 
         tokenRenovacionService.revocar(refreshToken);
 
@@ -197,15 +210,18 @@ public class AuthController {
                 .build();
     }
 
-    // Comprobar origen en operaciones con cookies
-    private void validarOrigen(String origin) {
+    // Comprobar el origen y la cabecera
+    private void validarSolicitud(
+            String origin,
+            String solicitadoCon) {
 
         if (origin == null ||
-                !ORIGENES_PERMITIDOS.contains(origin)) {
+                !ORIGENES_PERMITIDOS.contains(origin) ||
+                !"XMLHttpRequest".equals(solicitadoCon)) {
 
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN,
-                    "Origen de solicitud no permitido"
+                    "Solicitud no autorizada"
             );
         }
     }

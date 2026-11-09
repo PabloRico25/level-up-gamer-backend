@@ -2,9 +2,12 @@
 package cl.levelupgamer.backend.usuarios;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.Locale;
@@ -19,35 +22,54 @@ public class UsuarioService {
     @Transactional
     public Long registrar(RegistroRequest datos) {
 
-        String correo = datos.getCorreo()
-                .trim()
-                .toLowerCase(Locale.ROOT);
-
+        // Limpiar RUN y correo
         String run = datos.getRun()
                 .replace(".", "")
                 .replace("-", "")
                 .trim()
                 .toUpperCase(Locale.ROOT);
 
-        if (usuarioRepository.existsByCorreo(correo)) {
-            throw new IllegalArgumentException(
-                    "El correo ya está registrado"
+        String correo = datos.getCorreo()
+                .trim()
+                .toLowerCase(Locale.ROOT);
+
+        // Validar RUN chileno
+        if (!ValidadorRun.esValido(run)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "El RUN ingresado no es válido"
             );
         }
 
+        // Evitar RUN duplicado
         if (usuarioRepository.existsByRun(run)) {
-            throw new IllegalArgumentException(
-                    "El RUN ya está registrado"
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Este RUN ya está registrado"
             );
         }
 
-        if (datos.getFechaNacimiento()
-                .isAfter(LocalDate.now().minusYears(18))) {
-            throw new IllegalArgumentException(
-                    "Debes ser mayor de 18 años"
+        // Evitar correo duplicado
+        if (usuarioRepository.existsByCorreo(correo)) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Este correo ya está registrado"
             );
         }
 
+        // Comprobar mayoría de edad
+        LocalDate fechaNacimiento = datos.getFechaNacimiento();
+
+        if (fechaNacimiento == null ||
+                fechaNacimiento.plusYears(18).isAfter(LocalDate.now())) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Debes tener al menos 18 años"
+            );
+        }
+
+        // Crear usuario
         Usuario usuario = new Usuario();
 
         usuario.setRun(run);
@@ -55,17 +77,20 @@ public class UsuarioService {
         usuario.setApellidos(datos.getApellidos().trim());
         usuario.setCorreo(correo);
 
+        // Guardar contraseña protegida con BCrypt
         usuario.setContrasenaHash(
                 passwordEncoder.encode(datos.getContrasena())
         );
 
-        usuario.setFechaNacimiento(datos.getFechaNacimiento());
-        usuario.setRegion(datos.getRegion().trim());
-        usuario.setComuna(datos.getComuna().trim());
+        usuario.setFechaNacimiento(fechaNacimiento);
+        usuario.setRegion(datos.getRegion());
+        usuario.setComuna(datos.getComuna());
         usuario.setDireccion(datos.getDireccion().trim());
 
+        // Todo usuario nuevo comienza como CLIENTE
         usuario.setTipo(RolUsuario.CLIENTE);
 
+        // Guardar en MySQL
         Usuario guardado = usuarioRepository.save(usuario);
 
         return guardado.getId();

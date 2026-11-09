@@ -16,11 +16,13 @@ public class CorsConfig {
 
         CorsConfiguration configuracion = new CorsConfiguration();
 
+        // Frontend permitido
         configuracion.setAllowedOrigins(List.of(
                 "http://localhost:5173",
                 "http://127.0.0.1:5173"
         ));
 
+        // Métodos HTTP permitidos
         configuracion.setAllowedMethods(List.of(
                 "GET",
                 "POST",
@@ -30,11 +32,14 @@ public class CorsConfig {
                 "OPTIONS"
         ));
 
+        // Cabeceras permitidas
         configuracion.setAllowedHeaders(List.of(
                 "Authorization",
-                "Content-Type"
+                "Content-Type",
+                "X-Requested-With"
         ));
 
+        // Permitir cookies
         configuracion.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource origen =
