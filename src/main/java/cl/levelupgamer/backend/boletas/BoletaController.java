@@ -47,18 +47,19 @@ public class BoletaController {
             );
         }
 
-        // Por ahora asumimos que la sesión identifica al usuario
-        // mediante su correo. Se confirmará con Berna.
-        String correo = authentication.getName();
-
-        Usuario usuario = compradorRepository
-                .findByCorreoIgnoreCase(correo)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.UNAUTHORIZED,
-                        "No se encontró el usuario autenticado"
-                ));
+        Usuario usuario = obtenerUsuarioAutenticado(authentication);
 
         return registrarCompraService.registrar(solicitud, usuario);
+    }
+
+    // Consultar las compras del usuario autenticado
+    @GetMapping("/mis-compras")
+    public List<BoletaResponse> misCompras(
+            Authentication authentication) {
+
+        Usuario usuario = obtenerUsuarioAutenticado(authentication);
+
+        return boletaService.listarPorUsuario(usuario.getId());
     }
 
     // Listar todas las boletas
@@ -67,30 +68,50 @@ public class BoletaController {
             Authentication authentication) {
 
         verificarPermisosConsulta(authentication);
+
         return boletaService.listarTodas();
     }
 
-    // Buscar una boleta por su ID
+    // Buscar una boleta por ID
     @GetMapping("/{id}")
     public BoletaResponse buscarPorId(
             @PathVariable Long id,
             Authentication authentication) {
 
         verificarPermisosConsulta(authentication);
+
         return boletaService.buscarPorId(id);
     }
 
-    // Buscar las boletas de un usuario
+    // Consultar boletas de un usuario (administración)
     @GetMapping("/usuario/{usuarioId}")
     public List<BoletaResponse> listarPorUsuario(
             @PathVariable Long usuarioId,
             Authentication authentication) {
 
         verificarPermisosConsulta(authentication);
+
         return boletaService.listarPorUsuario(usuarioId);
     }
 
-    private void verificarAutenticacion(Authentication authentication) {
+    // Obtener el usuario desde la sesión
+    private Usuario obtenerUsuarioAutenticado(
+            Authentication authentication) {
+
+        verificarAutenticacion(authentication);
+
+        String correo = authentication.getName();
+
+        return compradorRepository.findByCorreoIgnoreCase(correo)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.UNAUTHORIZED,
+                        "No se encontró el usuario autenticado"
+                ));
+    }
+
+    // Comprobar que exista una sesión
+    private void verificarAutenticacion(
+            Authentication authentication) {
 
         if (authentication == null
                 || !authentication.isAuthenticated()
@@ -103,7 +124,9 @@ public class BoletaController {
         }
     }
 
-    private void verificarPermisosConsulta(Authentication authentication) {
+    // Permisos para consultar boletas administrativas
+    private void verificarPermisosConsulta(
+            Authentication authentication) {
 
         verificarAutenticacion(authentication);
 
