@@ -1,0 +1,134 @@
+[
+  {
+    "prueba": "Catálogo público",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "Sin JWT responde 401 JSON",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "Login incorrecto responde 401",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "Login administrador",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "Registro cliente",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "Registro duplicado 409",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "Login cliente",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "Cliente no administra usuarios 403",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "Vendedor no administra usuarios 403",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "Detalle y edición de usuario preservan contraseña sin exponerla",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "Administrador no se desactiva ni se quita su rol",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "CRUD de categorías y protección de categorías con productos",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "Recuperar sesión con cookie sin access token",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "Preflight CORS con PATCH y credenciales",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "JWT expirado se rechaza con 401",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "Refresh concurrente permite una sola renovación del mismo token",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "Administrador crea producto 201",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "Cliente no crea producto 403",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "Vendedor no compra 403",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "Compra guarda boleta, redondea descuento y descuenta stock",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "Cliente consulta boleta propia",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "Cliente ajeno recibe 403",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "Vendedor consulta órdenes",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "Listados filtran compras propias",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "Stock insuficiente no crea boleta ni descuenta otro producto",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "Compra Gmail sin descuento",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "Ítems repetidos rechazados 400",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "Seis compras concurrentes venden solo las tres unidades restantes",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "Precio histórico y boletas sobreviven desactivación de producto",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "Cambio de rol y baja tienen efecto con JWT ya emitido",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "Logout revoca cookie y evita recuperar sesión",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "Refresh rechaza origen no autorizado",
+    "resultado": "APROBADA"
+  },
+  {
+    "prueba": "OpenAPI expone módulos integrados",
+    "resultado": "APROBADA"
+  }
+]

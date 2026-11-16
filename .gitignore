@@ -36,3 +36,6 @@ build/
 .env
 application-local.yml
 application-local.properties
+.DS_Store
+.env.*
+!.env.example
