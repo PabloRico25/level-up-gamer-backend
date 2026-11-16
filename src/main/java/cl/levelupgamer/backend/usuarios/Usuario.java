@@ -1,12 +1,15 @@
 package cl.levelupgamer.backend.usuarios;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
 @Entity
 @Table(name="usuario")
-
+@Getter
+@Setter
 public class Usuario {
 
     @Id
@@ -37,8 +40,11 @@ public class Usuario {
     @Column(nullable = false)
     private String comuna;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 300)
     private String direccion;
+
+    @Column(nullable = false)
+    private boolean activo = true;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)

@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>cl.levelupgamer</groupId>
-    <artifactId>level-up-gamer-backend-berna</artifactId>
+    <artifactId>level-up-gamer-backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>level-up-gamer-backend-berna</name>
-    <description>level-up-gamer-backend-berna</description>
+    <name>level-up-gamer-backend</name>
+    <description>level-up-gamer-backend</description>
     <url/>
     <licenses>
         <license/>
@@ -33,6 +33,7 @@
         <excludedGroups>integracion</excludedGroups>
     </properties>
     <dependencies>
+        <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-security-oauth2-resource-server</artifactId></dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

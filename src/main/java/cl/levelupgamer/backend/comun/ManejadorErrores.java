@@ -74,7 +74,7 @@ public class ManejadorErrores extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers,
                                                              HttpStatusCode statusCode, WebRequest request) {
         HttpStatus status = HttpStatus.valueOf(statusCode.value());
-        String mensaje = switch (status) {
+        String mensaje = ex instanceof org.springframework.web.server.ResponseStatusException r && r.getReason() != null ? r.getReason() : switch (status) {
             case NOT_FOUND -> "No existe la ruta pedida";
             case METHOD_NOT_ALLOWED -> "Método no permitido para esta ruta";
             case BAD_REQUEST -> "La solicitud está mal formada";
