@@ -100,6 +100,8 @@ Desde la terminal:
 
 En `documentacion/`:
 
+- `ERS.docx`: especificación de requisitos del sistema.
+- `APIS_E_INTEGRACION.docx`: documento de APIs e integración, con el modelo de datos, los endpoints, las pruebas y las capturas de la comunicación frontend-backend.
 - `API.md` y `API.xlsx`: rutas, métodos, roles y respuestas.
 - `INTEGRACION.md`: cómo se conecta el frontend con esta API.
 - `MYSQL_Y_MIGRACIONES.md`: esquema de la base y migraciones.
